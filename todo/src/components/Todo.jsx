@@ -5,6 +5,8 @@ const Todo = () => {
   const [todos, setTodos] = useState([]);
   const [editId, setEditId] = useState(null);
   const [editValue, setEditValue] = useState("");
+  const [filter, setFilter] = useState("all");
+
   const addTodo = () => {
     if (input.trim() === "") {
       return;
@@ -53,6 +55,15 @@ const Todo = () => {
     setEditValue("");
   };
 
+  const filteredTodos = todos.filter((t) => {
+    if (filter === "active") {
+      return !t.completed;
+    }
+    if (filter === "complete") {
+      return t.completed;
+    }
+    return true; //all
+  });
   return (
     <div>
       <input
@@ -61,8 +72,13 @@ const Todo = () => {
         onChange={(e) => setInput(e.target.value)}
       />
       <button onClick={() => addTodo()}>Add Todo</button>
+      <div style={{ margin: "10px 0" }}>
+        <button onClick={() => setFilter("all")}>All</button>
+        <button onClick={() => setFilter("active")}>active</button>
+        <button onClick={() => setFilter("complete")}>Complete</button>
+      </div>
       <ul>
-        {todos.map((t) => (
+        {filteredTodos.map((t) => (
           <li key={t.id}>
             <input
               type="checkbox"
