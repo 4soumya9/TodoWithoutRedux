@@ -1,19 +1,21 @@
 import React, { useState } from "react";
 import "../App.css";
 const Todo = () => {
-  const [value, setValue] = useState("");
+  const [input, setInput] = useState("");
   const [todos, setTodos] = useState([]);
+  const [editId, setEditId] = useState(null);
+  const [editValue, setEditValue] = useState("");
   const addTodo = () => {
-    if (value.trim() === "") {
+    if (input.trim() === "") {
       return;
     }
     const data = {
       id: todos.length + 1,
-      text: value,
+      text: input,
       completed: false,
     };
     setTodos((prevTodo) => [...prevTodo, data]);
-    setValue("");
+    setInput("");
   };
 
   const toggleCompleted = (id) => {
@@ -35,12 +37,28 @@ const Todo = () => {
     setTodos(todos.filter((t) => t.id !== id));
   };
 
+  const startEditing = (id, currentText) => {
+    setEditId(id);
+    setEditValue(currentText);
+  };
+
+  const saveEdit = (id) => {
+    if (editValue.trim() === "") {
+      return;
+    }
+    setTodos((todos) =>
+      todos.map((t) => (t.id === id ? { ...t, text: editValue } : t))
+    );
+    setEditId(null);
+    setEditValue("");
+  };
+
   return (
     <div>
       <input
         type="text"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+        value={input}
+        onChange={(e) => setInput(e.target.value)}
       />
       <button onClick={() => addTodo()}>Add Todo</button>
       <ul>
@@ -51,8 +69,25 @@ const Todo = () => {
               checked={t.completed}
               onChange={() => toggleCompleted(t.id)}
             />
-            <span className={t.completed ? "strikeThrough" : ""}>{t.text}</span>
-            <button onClick={() => deleteTodo(t.id)}>Del</button>
+            {editId === t.id ? (
+              <>
+                <input
+                  type="text"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                />
+                <button onClick={() => saveEdit(t.id)}>Save</button>
+                <button onClick={() => setEditId(null)}>Cancel</button>
+              </>
+            ) : (
+              <>
+                <span className={t.completed ? "strikeThrough" : ""}>
+                  {t.text}
+                </span>
+                <button onClick={() => startEditing(t.id, t.text)}>Edit</button>
+                <button onClick={() => deleteTodo(t.id)}>Del</button>
+              </>
+            )}
           </li>
         ))}
       </ul>
